@@ -1,0 +1,27 @@
+body{
+	height: 100%;
+	margin: 0; 
+	text-align: center;
+	width: 100%;
+}
+
+h1 {
+	font-size: 32px;
+	font-family: Palatino, 'Palatino Linotype', serif;
+	color: rgb(121, 149, 117);
+}
+
+h2 {
+	font-size: 56px;
+}
+
+.triangulation {
+	padding: 250px 0;
+	margin: 3-px;
+	font-family: 'Trebuchet MS', Helvetica, sans-serif;
+	background-image: url('https://commons.wikimedia.org/wiki/Category:Delaunay_triangulation#/media/File:Delaunay_Triangulation_(100_Points).svg');
+	background-size: cover;
+	color: #ffffff;
+
+}
+
