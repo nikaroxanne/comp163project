@@ -4,11 +4,15 @@ float [][] matrix = { { 1/9, 1/9, 1/9},
 
 
 PImage img;
-void setup(){
- size(270,480);
- img = loadImage("nika2.JPG");
-}
+//PImage destination;
+ArrayList<Point> points;
 
+void setup(){
+  size(270,480);
+  img = loadImage("nika2.JPG");
+ // destination = createImage(img.width, img.height, RGB);
+  points = new ArrayList<Point>();
+}
 void draw(){
   background(0);
   image(img, 0, 0);
@@ -19,16 +23,20 @@ void draw(){
   int matrixsize = matrix.length;
   for (int x=0; x < width; x++){
     for (int y=0; y < height; y++){
+      //int pix = x + y*img.width;
       diff = convolution(x,y,matrix,matrixsize,img);
       //println(diff);
-      if (diff > 50){
-        noStroke();
-        fill(0,0,0);
-        ellipse(x, y, 5, 5);
+      if ((diff > 25) && (diff < 40)) {
+        points.add(new Point(x,y));
       }
     }
   }
+  updatePixels();
+  for(Point point: points){
+    point.display();
+  }
 }
+
 
 float convolution(int x, int y, float[][] matrix, int matrixsize, PImage img){
   float brightnessavg = 0.0;
@@ -47,4 +55,19 @@ float convolution(int x, int y, float[][] matrix, int matrixsize, PImage img){
   brightnessavg /= 9.00;
   brightnessavg = constrain(brightnessavg,0,255);
   return brightnessavg;
+}
+
+class Point {
+  float x, y;
+ 
+ Point(float _x, float _y){
+   x = _x;
+   y = _y;
+ }
+  void display() {
+   noStroke();
+   fill(0,0,0);
+   triangle(x, y, x+5, y+5, x+5, y); 
+ }
+ 
 }
