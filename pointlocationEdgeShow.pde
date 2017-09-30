@@ -36,21 +36,24 @@ void setup() {
   int height = img.height;
   int width = img.width;
   float sobelValue = 0.0;
+  float gaussian = 0.0;
   float brightnessGradient = 0.0;
   int matrixsize = matrixH.length;
   for (int x=0; x < width; x++) {
     for (int y=0; y < height; y++) {
       int pix = x + y*img.width;
-      sobelValue = convolution1(x, y, matrixH, matrixV, matrixsize, img);
+      gaussian = Gaussian(x,y, matrixsize, img);
+      img.pixels[pix] = color(gaussian);
+      sobelValue = sobel(x, y, matrixH, matrixV, matrixsize, img);
       destination.pixels[pix] = color(sobelValue);
-      brightnessGradient = averageGradient(x,y, matrixsize, destination);
-      destination.pixels[pix] = color(brightnessGradient);
-      if ((brightnessGradient > 110) && (brightnessGradient < 130)) {
-        destination.pixels[pix] = color(255);
-        facePoints.add(new FacePoint(x, y, brightnessGradient));
-      } else {
-        destination.pixels[pix] = color(0);
-      }
+      //brightnessGradient = averageGradient(x,y, matrixsize, destination);
+      //destination.pixels[pix] = color(brightnessGradient);
+      //if ((brightnessGradient > 90) && (brightnessGradient < 100)) {
+      //  destination.pixels[pix] = color(255);
+      //  facePoints.add(new FacePoint(x, y, brightnessGradient));
+      //} else {
+      //  destination.pixels[pix] = color(0);
+      //}
       destination.updatePixels();
       //makeEdges();
     }
@@ -84,7 +87,7 @@ void draw() {
   //}
 }
 
-float convolution1(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, PImage img) {
+float sobel(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, PImage img) {
   float sobelX = 0.0;
   float sobelY = 0.0;
   float sobelFinal = 0.0;
@@ -102,6 +105,27 @@ float convolution1(int x, int y, float[][] matrixH, float[][] matrixV, int matri
   sobelFinal = sqrt(sq(sobelX) + sq(sobelY));
   sobelFinal = constrain(sobelFinal, 0, 255);
   return sobelFinal;
+}
+
+float Gaussian(int x, int y, int matrixsize, PImage img){
+ float gaussian = 0.0;
+  int offset = matrixsize/2;
+  for (int i=0; i<matrixsize; i++) {
+    for (int j=0; j<matrixsize; j++) {
+      int xloc = (x+i) - offset;
+      int yloc = (y-j) - offset;
+      int loc = xloc + img.width*yloc;
+      int mid = x + y*img.width;
+      loc = constrain(loc, 0, img.pixels.length-1);
+      //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
+      //print(brightnessavg);
+      gaussian += (sq(brightness(img.pixels[mid])) - (averageGradient(x,y,matrixsize,img)));
+    }
+  }
+  gaussian /= 9.00;
+  gaussian = sqrt(gaussian);
+  gaussian = constrain(gaussian, 0, 255);
+  return gaussian; 
 }
 
 float averageGradient(int x, int y, int matrixsize, PImage img) {
