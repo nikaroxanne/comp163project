@@ -1,9 +1,10 @@
 import gab.opencv.*;
 import java.awt.Rectangle;
 
-final int SCALEFACTOR = 4;
+final int SCALEFACTOR = 2;
 final int DISPLAYWIDTH = 600;
 final int DISPLAYHEIGHT = 600;
+State state;
 
 float [][] matrixH = { {-1, 0, 1}, 
   { -2, 0, 2}, 
@@ -15,8 +16,12 @@ float [][] matrixB = { {1/9, 1/9, 1/9},
   { 1/9, 1/9, 1/9}, 
   { 1/9, 1/9, 1/9}};
   
-OpenCV opencv;
-Rectangle[] faces;
+float [][] matrixGauss = { {1/25, 1/25, 1/25, 1/25, 1/25},
+{1/25, 1/25, 1/25, 1/25, 1/25}, 
+{1/25, 1/25, 1/25, 1/25, 1/25},
+{1/25, 1/25, 1/25, 1/25, 1/25}, 
+{1/25, 1/25, 1/25, 1/25, 1/25}};
+
 
 
 PImage src, img, destination;
@@ -24,6 +29,8 @@ PImage src, img, destination;
 ArrayList<FacePoint> facePoints;
 ArrayList<Edge> edges;
 ArrayList<BoundingBox> boxPoints;
+Rectangle[] faces;
+OpenCV opencv;
 
 /*************Function declarations****************/
 /*Bitmap loadImage(FILE *img); equivalent to setup */
@@ -36,50 +43,53 @@ ArrayList<BoundingBox> boxPoints;
 
 
 /**************************************************/
-int scale = 4;
+//int scale = 4;
 
 void setup(){
-  boxPoints = new ArrayList();
-  src = loadImage("nikanew.jpg");
-  size(600,600);
-  opencv = new OpenCV(this, src);
-  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
-  faces = opencv.detect();
-  scale(0.25);
+  //boxPoints = new ArrayList();
+  //src = loadImage("nikanew.jpg");
+  //size(600,600);
+  
+  //opencv = new OpenCV(this, src);
+  //opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+  //faces = opencv.detect();
+  //scale(0.25);
   //image(destination, 0, 0); 
-  image(opencv.getInput(),0,0);
+  //image(opencv.getInput(),0,0);
   //int boxX, boxY, boxWidth, boxHeight;
   //for (BoundingBox boxPoint: boxPoints){
   //  boxPoint.showPoints();
   //}
-  for(int i=0; i < faces.length; i++){
-    int facewidth = (faces[i].width)/SCALEFACTOR;
-    int faceheight = (faces[i].height)/SCALEFACTOR;
-    int faceX = (faces[i].x)/SCALEFACTOR;
-    int faceY = (faces[i].y)/SCALEFACTOR;
-    //boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
-    //int boxPassed = (boxPoints.boxSizeCheck(facewidth, faceheight));
-    // if (boxPassed == 1) {
-    boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
-    println(faces[i].x);
-    println(faces[i].y);
-    println(faces[i].width);
-    println(faces[i].height);
-  }
-
- 
-  img = loadImage("nika2.JPG");
+  //for(int i=0; i < faces.length; i++){
+  //  int facewidth = (faces[i].width)/SCALEFACTOR;
+  //  int faceheight = (faces[i].height)/SCALEFACTOR;
+  //  int faceX = (faces[i].x)/SCALEFACTOR;
+  //  int faceY = (faces[i].y)/SCALEFACTOR;
+  //  //boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
+  //  //int boxPassed = (boxPoints.boxSizeCheck(facewidth, faceheight));
+  //  // if (boxPassed == 1) {
+  //  boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
+  //  println(faces[i].x);
+  //  println(faces[i].y);
+  //  println(faces[i].width);
+  //  println(faces[i].height);
+  //}
+  
+  //state = new State();
+  img = loadImage("nikanew.jpg");
   facePoints = new ArrayList();
   edges = new ArrayList();
+  boxPoints = new ArrayList();
   destination = createImage(img.width, img.height, RGB);
   img.loadPixels();
   destination.loadPixels();
   //int height = img.height;
   //int width = img.width;
-  //float sobelValue = 0.0;
+  float sobelValue = 0.0;
   float gaussian = 0.0;
   //float brightnessGradient = 0.0;
   int matrixsize = matrixH.length; 
+  /*
   BoundingBox boundingBox = boxPoints.get(1);
   int boxWidth = boundingBox.width; 
   int boxHeight = boundingBox.height;
@@ -97,13 +107,17 @@ void setup(){
   println(boxYStart);
   println(boxXEnd);
   println(boxYEnd);
-  for (int x = 0; x < img.width; x++) {
+  */
+  int gaussLength = 5;
+  for (int x = 0; x <= img.width; x++) {
     for (int y = 0; y < img.height ; y++) {
       int pix = x + y*img.width;
-      gaussian = Gaussian(x,y, matrixsize, img);
-      //img.pixels[pix] = color(gaussian);
-      //sobelValue = sobel(x, y, matrixH, matrixV, matrixsize, img);
+      gaussian = Gaussian(x,y, gaussLength, img);
       destination.pixels[pix] = color(gaussian);
+      //color initial = img.pixels[pix];
+      //color postGauss = gaussian * initial;
+      //sobelValue = sobel(x, y, matrixH, matrixV, matrixsize, img);
+      //destination.pixels[pix] = color(sobelValue);
       //brightnessGradient = averageGradient(x,y, matrixsize, destination);
       //destination.pixels[pix] = color(brightnessGradient);
       //if ((brightnessGradient > 90) && (brightnessGradient < 100)) {
@@ -131,18 +145,19 @@ void makeEdges(){
 
 void draw() {
   //background(0);
-  //scale(0.25);
-  image(destination, 0, 0); 
+  //scale(0.5);
+  image(img, 0, 0); 
+  update();
   //image(opencv.getInput(),0,0);
   
   
-  noFill();
-  stroke(0,255,0);
-  strokeWeight(3);
-  for (BoundingBox boundingBox: boxPoints){
-      boundingBox.draw();
-  }
-
+  //noFill();
+  //stroke(0,255,0);
+  //strokeWeight(3);
+  //for (BoundingBox boundingBox: boxPoints){
+  //    boundingBox.draw();
+  //}
+  //saveFrame("offSorbelpic.jpg");
   //int boxX, boxY, boxWidth, boxHeight = 0;
   //for(int i=0; i < faces.length; i++){
   //  boxX = faces[i].x;
@@ -164,6 +179,36 @@ void draw() {
   //fill(0,0,0);
   //ellipse(x, y, 5, 5);
   //}
+}
+
+void update(){
+ switch(state.state){
+  case BEGIN:
+  
+  case GAUSSIAN:
+  case FACEDETECT:
+    
+    PImage gaussImage = loadImage("nikanew.jpg");
+    size(1200,1200);
+    opencv = new OpenCV(this, gaussImage);
+    opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+    faces = opencv.detect();
+    image(opencv.getInput(),0,0);
+    for(BoundingBox boxPoint: boxPoints){
+      boxPoint.getFaces(faces);
+      boxPoint.boxSizeCheck();
+    }
+    break;
+  case SOBEL:
+  /*case CORNER:
+  case LANDMARKS:
+  case SORT: 
+  case CONVEXHULL:
+  case MONOTONETRI:
+  case FLIP:
+  case DELAUNAY:
+  case VORONOI:*/
+ }
 }
 
 float sobel(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, PImage img) {
@@ -189,11 +234,13 @@ float sobel(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, 
 
 float Gaussian(int x, int y, int matrixsize, PImage img){
  float gaussian = 0.0;
+ float gaussianPix= 0.0;
  float gaussExponent = 0.0;
  float eulerVal = 0.0;
+ float sigma = 1.0;
   int offset = matrixsize/2;
-  for (int i=0; i<matrixsize; i++) {
-    for (int j=0; j<matrixsize; j++) {
+  for (int i=-2; i<=2; i++) {
+    for (int j=-2; j<=2; j++) {
       int xloc = (x+i) - offset;
       int yloc = (y-j) - offset;
       int loc = xloc + img.width*yloc;
@@ -201,13 +248,22 @@ float Gaussian(int x, int y, int matrixsize, PImage img){
       loc = constrain(loc, 0, img.pixels.length-1);
       //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
       //print(brightnessavg);
-      gaussExponent = ((sq(brightness(img.pixels[loc]))) / ((2*sq(stDev(x,y,matrixsize,img)))));
+      gaussExponent = (-((sq(brightness(img.pixels[loc]))) / ((2*sq(sigma)))));
+      //gaussExponent = (-((sq(brightness(img.pixels[loc]))) / ((2*sq(stDev(x,y,matrixsize,img))))));
+      //println(gaussExponent);
       eulerVal = exp(gaussExponent);
-      gaussian = (1 / (2* PI * sq(stDev(x,y,matrixsize,img)))) * eulerVal;
+      //println(eulerVal);
+      gaussian = (1 / (2* PI * sq(sigma))) * eulerVal;
+      //gaussian = (1 / (2* PI * sq(stDev(x,y,matrixsize,img)))) * eulerVal;
+      //println(gaussian);
+      matrixGauss[i][j] = gaussian;
+      gaussianPix += img.pixels[loc]*matrixGauss[i][j];
+      //println(gaussianPix);
     }
   }
-  gaussian = constrain(gaussian, 0, 255);
-  return gaussian; 
+  gaussianPix = constrain(gaussian, 0, 255);
+  println(gaussianPix);
+  return gaussianPix; 
 }
 
 float stDev(int x, int y, int matrixsize, PImage img){
@@ -222,11 +278,12 @@ float stDev(int x, int y, int matrixsize, PImage img){
       loc = constrain(loc, 0, img.pixels.length-1);
       //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
       //print(brightnessavg);
-      stDev += (sq(brightness(img.pixels[loc])) - (averageGradient(x,y,matrixsize,img)));
+      stDev += (sq((brightness(img.pixels[loc])) - (averageGradient(x,y,matrixsize,img))));
     }
   }
-  stDev /= 9.00;
+  stDev /= 24.00;
   stDev = sqrt(stDev);
+  //println(stDev);
   stDev = constrain(stDev, 0, 255);
   return stDev; 
 }
@@ -247,7 +304,7 @@ float averageGradient(int x, int y, int matrixsize, PImage img) {
       //print(brightnessavg);
     }
   }
-  brightnessavg /= 9.00;
+  brightnessavg /= 25.00;
   brightnessavg = constrain(brightnessavg, 0, 255);
   return brightnessavg;
 }
