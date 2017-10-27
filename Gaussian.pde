@@ -1,8 +1,13 @@
 class Gaussian {
+  int x,y, matrixsize;
+  PImage img;
   
-  
-
-  float Gaussian(int x, int y, int matrixsize, PImage img) {
+  float Gaussian(int _x, int _y, int _matrixsize, PImage _img) {
+    x = _x;
+    y = _y;
+    matrixsize = _matrixsize;
+    img = _img;
+    
     float gaussian = 0.0;
     float gaussianPix= 0.0;
     float gaussExponent = 0.0;
