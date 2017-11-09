@@ -58,34 +58,8 @@ void setup() {
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
   faces = opencv.detect();
   checkFaces(faces);
-  //scale(scaleVal);
-  //image(src, 0, 0); 
-  //image(opencv.getInput(),0,0);
-  ////int boxX, boxY, boxWidth, boxHeight;
-  ////for (BoundingBox boxPoint: boxPoints){
-  ////  boxPoint.boxSizeCheck();
-  ////}
-////  boxPoints.boxRender(faces);
- 
-  //for (BoundingBox boxPoint : boxPoints) {
-  //    //boxPoint.getFaces(faces);
-  //    //boxPoint.boxSizeCheck();
-  //  println(boxPoint.x);
-  //  println(boxPoint.y);
-  //  println(boxPoint.width);
-  //  println(boxPoint.height);
-  //  boxPoint.draw();
-  //}
-      //boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
-      //println(faces[i].x);
-      //println(faces[i].y);
-      //println(faces[i].width);
-      //println(faces[i].height);
-  //}
-  ////}
-
   state = new State();
-  src.resize(0,600);
+  //src.resize(0,600);
   facePoints = new ArrayList();
   edges = new ArrayList();
 
@@ -99,26 +73,7 @@ void setup() {
   //float gaussian = 0.0;
   //float brightnessGradient = 0.0;
   //int matrixsize = matrixH.length; 
-  /*
-  BoundingBox boundingBox = boxPoints.get(1);
-   int boxWidth = boundingBox.width; 
-   int boxHeight = boundingBox.height;
-   int boxXStart = boundingBox.x;
-   int boxYStart = boundingBox.y;
-   //int boxXStart = constrain(faces[0].x, 0, img.width);
-   //int boxYStart = constrain(faces[0].y, 0, img.height); 
-   int boxXEnd = boxXStart + boxWidth;
-   int boxYEnd = boxYStart + boxHeight;
-   //constrain(boxXEnd, boxXStart + boxWidth, img.width);
-   //constrain(boxYEnd, boxYStart + boxHeight, img.height);
-   println(boxWidth);
-   println(boxHeight);
-   println(boxXStart);
-   println(boxYStart);
-   println(boxXEnd);
-   println(boxYEnd);
-   */
-  /*
+/*
   int gaussLength = 5;
    for (int x = 0; x <= img.width; x++) {
    for (int y = 0; y < img.height ; y++) {
@@ -158,37 +113,12 @@ void makeEdges() {
 void draw() {
   background(0);
   image(src, 0, 0); 
-  //scale(0.25);
   for (BoundingBox boxPoint : boxPoints) {
-      //boxPoint.getFaces(faces);
-      //boxPoint.boxSizeCheck();
-    println(boxPoint.x);
-    println(boxPoint.y);
-    println(boxPoint.width);
-    println(boxPoint.height);
     boxPoint.draw();
   }
   update();
-  //image(opencv.getInput(),0,0);
-
-
-  //noFill();
-  //stroke(0,255,0);
-  //strokeWeight(3);
-  //for (BoundingBox boundingBox: boxPoints){
-  //    boundingBox.draw();
-  //}
+  
   //saveFrame("offSorbelpic.jpg");
-  //int boxX, boxY, boxWidth, boxHeight = 0;
-  //for(int i=0; i < faces.length; i++){
-  //  boxX = faces[i].x;
-  //  boxY = faces[i].y; 
-  //  boxWidth = faces[i].width; 
-  //  boxHeight = faces[i].height;
-  //  boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
-  //  //rect(faces[i].x,faces[i].y, faces[i].width, faces[i].height);
-  //  //print(faces[i].x);
-  //}
   //makeEdges();
   //for (FacePoint facePoint: facePoints){
   //  facePoint.showPoints();
@@ -336,13 +266,6 @@ void checkFaces(Rectangle[] faces){
     int faceheight = (faces[i].height);
     int faceX = (faces[i].x);
     int faceY = (faces[i].y);
-    println(faces[i].x);
-    println(faces[i].y);
-    println(faces[i].width);
-    println(faces[i].height);
-    //boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
-    //int boxPassed = (boxPoints.boxSizeCheck(facewidth, faceheight));
-    //  boxPoints.boxSizeCheck();
     if ((faceheight > 100) && (facewidth > 100)) {
       boxPoints.add(new BoundingBox(faceX,faceY, facewidth,faceheight));
     }
