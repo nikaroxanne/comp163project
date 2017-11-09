@@ -1,7 +1,7 @@
 import gab.opencv.*;
 import java.awt.Rectangle;
 
-final int SCALEFACTOR = 2;
+//final int SCALEFACTOR = 1;
 final int DISPLAYWIDTH = 600;
 final int DISPLAYHEIGHT = 600;
 State state;
@@ -15,12 +15,12 @@ float [][] matrixV = { {1, 2, 1},
 float [][] matrixB = { {1/9, 1/9, 1/9}, 
   { 1/9, 1/9, 1/9}, 
   { 1/9, 1/9, 1/9}};
-  
-float [][] matrixGauss = { {1/25, 1/25, 1/25, 1/25, 1/25},
-{1/25, 1/25, 1/25, 1/25, 1/25}, 
-{1/25, 1/25, 1/25, 1/25, 1/25},
-{1/25, 1/25, 1/25, 1/25, 1/25}, 
-{1/25, 1/25, 1/25, 1/25, 1/25}};
+
+float [][] matrixGauss = { {1/25, 1/25, 1/25, 1/25, 1/25}, 
+  {1/25, 1/25, 1/25, 1/25, 1/25}, 
+  {1/25, 1/25, 1/25, 1/25, 1/25}, 
+  {1/25, 1/25, 1/25, 1/25, 1/25}, 
+  {1/25, 1/25, 1/25, 1/25, 1/25}};
 
 
 
@@ -45,42 +45,52 @@ OpenCV opencv;
 /**************************************************/
 //int scale = 4;
 
-void setup(){
-  //src = loadImage("nikanew.jpg");
-  size(600,600);
-  
-  //opencv = new OpenCV(this, src);
-  //opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
-  //faces = opencv.detect();
-  //scale(0.25);
-  //image(destination, 0, 0); 
+void setup() {
+  src = loadImage("nikanew.jpg");
+  src.resize(0,600);
+  boxPoints = new ArrayList();
+  size(600, 600);
+  //int width = src.width;
+  //int height = src.height;
+  //float scaleVal = (DISPLAYWIDTH)/(width);
+  //println(scaleVal);
+  opencv = new OpenCV(this, src);
+  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+  faces = opencv.detect();
+  checkFaces(faces);
+  //scale(scaleVal);
+  //image(src, 0, 0); 
   //image(opencv.getInput(),0,0);
-  //int boxX, boxY, boxWidth, boxHeight;
-  //for (BoundingBox boxPoint: boxPoints){
-  //  boxPoint.showPoints();
+  ////int boxX, boxY, boxWidth, boxHeight;
+  ////for (BoundingBox boxPoint: boxPoints){
+  ////  boxPoint.boxSizeCheck();
+  ////}
+////  boxPoints.boxRender(faces);
+ 
+  //for (BoundingBox boxPoint : boxPoints) {
+  //    //boxPoint.getFaces(faces);
+  //    //boxPoint.boxSizeCheck();
+  //  println(boxPoint.x);
+  //  println(boxPoint.y);
+  //  println(boxPoint.width);
+  //  println(boxPoint.height);
+  //  boxPoint.draw();
   //}
-  //for(int i=0; i < faces.length; i++){
-  //  int facewidth = (faces[i].width)/SCALEFACTOR;
-  //  int faceheight = (faces[i].height)/SCALEFACTOR;
-  //  int faceX = (faces[i].x)/SCALEFACTOR;
-  //  int faceY = (faces[i].y)/SCALEFACTOR;
-  //  //boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
-  //  //int boxPassed = (boxPoints.boxSizeCheck(facewidth, faceheight));
-  //  // if (boxPassed == 1) {
-  //  boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
-  //  println(faces[i].x);
-  //  println(faces[i].y);
-  //  println(faces[i].width);
-  //  println(faces[i].height);
+      //boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
+      //println(faces[i].x);
+      //println(faces[i].y);
+      //println(faces[i].width);
+      //println(faces[i].height);
   //}
-  
+  ////}
+
   state = new State();
-  img = loadImage("nikanew.jpg");
+  src.resize(0,600);
   facePoints = new ArrayList();
   edges = new ArrayList();
-  boxPoints = new ArrayList();
-  boxPoints = new ArrayList();
-  destination = createImage(img.width, img.height, RGB);
+
+  //boxPoints = new ArrayList();
+  //destination = createImage(img.width, img.height, RGB);
   //img.loadPixels();
   //destination.loadPixels();
   //int height = img.height;
@@ -91,68 +101,77 @@ void setup(){
   //int matrixsize = matrixH.length; 
   /*
   BoundingBox boundingBox = boxPoints.get(1);
-  int boxWidth = boundingBox.width; 
-  int boxHeight = boundingBox.height;
-  int boxXStart = boundingBox.x;
-  int boxYStart = boundingBox.y;
-  //int boxXStart = constrain(faces[0].x, 0, img.width);
-  //int boxYStart = constrain(faces[0].y, 0, img.height); 
-  int boxXEnd = boxXStart + boxWidth;
-  int boxYEnd = boxYStart + boxHeight;
-  //constrain(boxXEnd, boxXStart + boxWidth, img.width);
-  //constrain(boxYEnd, boxYStart + boxHeight, img.height);
-  println(boxWidth);
-  println(boxHeight);
-  println(boxXStart);
-  println(boxYStart);
-  println(boxXEnd);
-  println(boxYEnd);
-  */
+   int boxWidth = boundingBox.width; 
+   int boxHeight = boundingBox.height;
+   int boxXStart = boundingBox.x;
+   int boxYStart = boundingBox.y;
+   //int boxXStart = constrain(faces[0].x, 0, img.width);
+   //int boxYStart = constrain(faces[0].y, 0, img.height); 
+   int boxXEnd = boxXStart + boxWidth;
+   int boxYEnd = boxYStart + boxHeight;
+   //constrain(boxXEnd, boxXStart + boxWidth, img.width);
+   //constrain(boxYEnd, boxYStart + boxHeight, img.height);
+   println(boxWidth);
+   println(boxHeight);
+   println(boxXStart);
+   println(boxYStart);
+   println(boxXEnd);
+   println(boxYEnd);
+   */
   /*
   int gaussLength = 5;
-  for (int x = 0; x <= img.width; x++) {
-    for (int y = 0; y < img.height ; y++) {
-      int pix = x + y*img.width;
-      gaussian = Gaussian(x,y, gaussLength, img);
-      destination.pixels[pix] = color(gaussian);
-      //color initial = img.pixels[pix];
-      //color postGauss = gaussian * initial;
-      //sobelValue = sobel(x, y, matrixH, matrixV, matrixsize, img);
-      //destination.pixels[pix] = color(sobelValue);
-      //brightnessGradient = averageGradient(x,y, matrixsize, destination);
-      //destination.pixels[pix] = color(brightnessGradient);
-      //if ((brightnessGradient > 90) && (brightnessGradient < 100)) {
-      //  destination.pixels[pix] = color(255);
-      //  facePoints.add(new FacePoint(x, y, brightnessGradient));
-      //} else {
-      //  destination.pixels[pix] = color(0);
-      //}
-      destination.updatePixels();
-      //makeEdges();
-      
-    }
-  }*/
+   for (int x = 0; x <= img.width; x++) {
+   for (int y = 0; y < img.height ; y++) {
+   int pix = x + y*img.width;
+   gaussian = Gaussian(x,y, gaussLength, img);
+   destination.pixels[pix] = color(gaussian);
+   //color initial = img.pixels[pix];
+   //color postGauss = gaussian * initial;
+   //sobelValue = sobel(x, y, matrixH, matrixV, matrixsize, img);
+   //destination.pixels[pix] = color(sobelValue);
+   //brightnessGradient = averageGradient(x,y, matrixsize, destination);
+   //destination.pixels[pix] = color(brightnessGradient);
+   //if ((brightnessGradient > 90) && (brightnessGradient < 100)) {
+   //  destination.pixels[pix] = color(255);
+   //  facePoints.add(new FacePoint(x, y, brightnessGradient));
+   //} else {
+   //  destination.pixels[pix] = color(0);
+   //}
+   destination.updatePixels();
+   //makeEdges();
+   
+   }
+   }*/
 }
 
-void makeEdges(){
-    for (int i = facePoints.size() -1; i >= 0; i--){
-      FacePoint facePoint1 = facePoints.get(i);
-      for (int j= facePoints.size() -2; j>=1; j--){
-        FacePoint facePoint2 = facePoints.get(j);
-        Edge edge = new Edge(facePoint1, facePoint2);
-        edges.add(edge);
-      }  
+void makeEdges() {
+  for (int i = facePoints.size() -1; i >= 0; i--) {
+    FacePoint facePoint1 = facePoints.get(i);
+    for (int j= facePoints.size() -2; j>=1; j--) {
+      FacePoint facePoint2 = facePoints.get(j);
+      Edge edge = new Edge(facePoint1, facePoint2);
+      edges.add(edge);
     }
- }
+  }
+}
 
 void draw() {
   background(0);
-  scale(0.25);
-  image(img, 0, 0); 
+  image(src, 0, 0); 
+  //scale(0.25);
+  for (BoundingBox boxPoint : boxPoints) {
+      //boxPoint.getFaces(faces);
+      //boxPoint.boxSizeCheck();
+    println(boxPoint.x);
+    println(boxPoint.y);
+    println(boxPoint.width);
+    println(boxPoint.height);
+    boxPoint.draw();
+  }
   update();
   //image(opencv.getInput(),0,0);
-  
-  
+
+
   //noFill();
   //stroke(0,255,0);
   //strokeWeight(3);
@@ -175,85 +194,96 @@ void draw() {
   //  facePoint.showPoints();
   //}
   /*for (Edge edge: edges){
-    edge.draw();
-  }*/
+   edge.draw();
+   }*/
   //noStroke();
   //fill(0,0,0);
   //ellipse(x, y, 5, 5);
   //}
 }
 
-void update(){
- switch(state.state){
+void update() {
+  switch(state.state) {
   case BEGIN:
-    text("Click here to start", 5 , width);
+    text("Click here to start", 5, width);
     break;
   case GRAY:
-    image(img, 0,0);
-    filter(GRAY);
+    image(img, 0, 0);
+    filter(BLUR, 50);
     break;
   case GAUSSIAN:
-    //int gaussLength = 3;
-    img.loadPixels();
-    destination.loadPixels();
-    for (int y = 1; y < img.height -1; y++) {
-      for (int x = 1; x < img.width -1 ; x++) {
-        float gaussian = 0.0;
-        gaussian = Gaussian(y, x, img);
-        int pix = x + y*img.width;
-        destination.pixels[pix] = color(gaussian);
-        //color initial = img.pixels[pix];
-        //color postGauss = gaussian * initial;
-        //destination.pixels[pix] = color(brightnessGradient);
-        //destination.updatePixels();
-      }
-    }
-    destination.updatePixels();
-    image(destination, 0, 0);
+    //int gaussLength = 5;
+    histogram(img);
+    //img.loadPixels();
+    //destination.loadPixels();
+
+
+    //destination.updatePixels();
+    //image(destination, 0, 0);
     break;
-  case FACEDETECT:
-    PImage gaussImage = loadImage("nikanew.jpg");
-    //size(1200,1200);
-    opencv = new OpenCV(this, gaussImage);
-    opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
-    scale(0.25);
-    image(destination, 0, 0); 
-    faces = opencv.detect();
-    image(opencv.getInput(),0,0);
-    noFill();
-    stroke(0,255,0);
-    strokeWeight(3);
-    for(BoundingBox boxPoint: boxPoints){
-      boxPoint.getFaces(faces);
-      boxPoint.boxSizeCheck();
-      boxPoint.draw();
-    }
-    break;
-  case SOBEL:
-    break;
-  /*case CORNER:
-  case LANDMARKS:
-  case SORT: 
-  case CONVEXHULL:
-  case MONOTONETRI:
-  case FLIP:
-  case DELAUNAY:
-  case VORONOI:*/
- }
+  //case FACEDETECT:
+  //  PImage gaussImage = loadImage("nikanew.jpg");
+  //  //size(1200,1200);
+  //  opencv = new OpenCV(this, gaussImage);
+  //  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
+  //  scale(0.25);
+  //  image(destination, 0, 0); 
+  //  faces = opencv.detect();
+  //  image(opencv.getInput(), 0, 0);
+  //  noFill();
+  //  stroke(0, 255, 0);
+  //  strokeWeight(3);
+  //  for (BoundingBox boxPoint : boxPoints) {
+  //    boxPoint.getFaces(faces);
+  //    boxPoint.boxSizeCheck();
+  //    boxPoint.draw();
+  //  }
+  //  break;
+  //case SOBEL:
+  //  break;
+    /*case CORNER:
+     case LANDMARKS:
+     case SORT: 
+     case CONVEXHULL:
+     case MONOTONETRI:
+     case FLIP:
+     case DELAUNAY:
+     case VORONOI:*/
+  }
 }
 
-void mouseClicked(){
-  switch(state.state){
-    case BEGIN:
-      state.next();
-    case GRAY:
-      state.next();
-    case GAUSSIAN:
-      state.next();
-    case FACEDETECT:
-      state.next();
-    case SOBEL:
-      break;
+void mouseClicked() {
+  switch(state.state) {
+  case BEGIN:
+    state.next();
+  case GRAY:
+    state.next();
+  case GAUSSIAN:
+    state.next();
+  //case FACEDETECT:
+  //  state.next();
+  //case SOBEL:
+  //  break;
+  }
+}
+
+void histogram(PImage img) {
+  int bright = 0;
+  int[] hist = new int[256];
+  for (int x = 0; x < img.width; x++) {
+    for (int y = 0; y < img.height; y++) {
+      //float gaussian = 0.0;
+      bright = int(brightness(get(x, y)));
+      hist[bright]++;
+      //gaussian = Gaussian(x, y, gaussLength, matrixGauss, img);
+    }
+  }
+  int histMax = max(hist);
+  stroke(255);
+  for (int i=0; i< img.width; i++) {
+    int histX = int(map(i, 0, img.width, 0, 255));
+    int histY = int(map(hist[histX], 0, histMax, img.height, 0));
+    line(i, img.height, i, histY);
   }
 }
 
@@ -278,70 +308,6 @@ float sobel(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, 
   return sobelFinal;
 }
 
-float Gaussian(int y, int x, PImage img){
-  float gaussian = 0.0;
- //float gaussianPix= 0.0;
- //float gaussExponent = 0.0;
- //float eulerVal = 0.0;
- //float sigma = 1.0;
-  //int offset = matrixsize/2;
-  for (int ky=-1; ky<=1; ky++) {
-    for (int kx=-1; kx<=1; kx++) {
-      int pos = (y+ky)*img.width + (x +kx);
-      float val = red(img.pixels[pos]);
-      gaussian += matrixB[ky+1][kx +1] * val;
-    }
-  }
-  return gaussian;
-}
-  /*
-      //int xloc = (x+i) - offset;
-      //int yloc = (y-j) - offset;
-      //int loc = xloc + img.width*yloc;
-      //int mid = x + y*img.width;
-      //loc = constrain(loc, 0, img.pixels.length-1);
-      //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
-      //print(brightnessavg);
-      gaussExponent = (-((sq(brightness(img.pixels[loc]))) / ((2*sq(sigma)))));
-      //gaussExponent = (-((sq(brightness(img.pixels[loc]))) / ((2*sq(stDev(x,y,matrixsize,img))))));
-      //println(gaussExponent);
-      eulerVal = exp(gaussExponent);
-      //println(eulerVal);
-      gaussian = (1 / (2* PI * sq(sigma))) * eulerVal;
-      //gaussian = (1 / (2* PI * sq(stDev(x,y,matrixsize,img)))) * eulerVal;
-      //println(gaussian);
-      matrixGauss[i][j] = gaussian;
-      gaussianPix += img.pixels[loc]*matrixGauss[i][j];
-      //println(gaussianPix);
-    }
-  }
-  gaussianPix = constrain(gaussian, 0, 255);
-  println(gaussianPix);
-  return gaussianPix; 
-}
-*/
-
-float stDev(int x, int y, int matrixsize, PImage img){
- float stDev = 0.0;
-  int offset = matrixsize/2;
-  for (int i=0; i<matrixsize; i++) {
-    for (int j=0; j<matrixsize; j++) {
-      int xloc = (x+i) - offset;
-      int yloc = (y-j) - offset;
-      int loc = xloc + img.width*yloc;
-      //int mid = x + y*img.width;
-      loc = constrain(loc, 0, img.pixels.length-1);
-      //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
-      //print(brightnessavg);
-      stDev += (sq((brightness(img.pixels[loc])) - (averageGradient(x,y,matrixsize,img))));
-    }
-  }
-  stDev /= 24.00;
-  stDev = sqrt(stDev);
-  //println(stDev);
-  stDev = constrain(stDev, 0, 255);
-  return stDev; 
-}
 
 float averageGradient(int x, int y, int matrixsize, PImage img) {
   float brightnessavg = 0.0;
@@ -362,4 +328,23 @@ float averageGradient(int x, int y, int matrixsize, PImage img) {
   brightnessavg /= 25.00;
   brightnessavg = constrain(brightnessavg, 0, 255);
   return brightnessavg;
+}
+
+void checkFaces(Rectangle[] faces){
+ for(int i=0; i < faces.length; i++){
+    int facewidth = (faces[i].width);
+    int faceheight = (faces[i].height);
+    int faceX = (faces[i].x);
+    int faceY = (faces[i].y);
+    println(faces[i].x);
+    println(faces[i].y);
+    println(faces[i].width);
+    println(faces[i].height);
+    //boxPoints.add(new BoundingBox(boxX, boxY, boxWidth, boxHeight));
+    //int boxPassed = (boxPoints.boxSizeCheck(facewidth, faceheight));
+    //  boxPoints.boxSizeCheck();
+    if ((faceheight > 100) && (facewidth > 100)) {
+      boxPoints.add(new BoundingBox(faceX,faceY, facewidth,faceheight));
+    }
+  }
 }
