@@ -133,17 +133,21 @@ void draw() {
 }
 
 void update() {
+  //int currState = state.state;
+  boolean canvasInFrame = screenScrollControl();
   switch(state.state) {
   case BEGIN:
-    text("Click here to start", 5, width);
-    break;
+    if(canvasInFrame){
+      text("Click here to start", 5, width);
+      break;
+    }
   case GRAY:
-    image(img, 0, 0);
-    filter(BLUR, 50);
+    image(src, 0, 0);
+    filter(BLUR, 10);
     break;
   case GAUSSIAN:
     //int gaussLength = 5;
-    histogram(img);
+    histogram(src);
     //img.loadPixels();
     //destination.loadPixels();
 
@@ -152,23 +156,6 @@ void update() {
     //image(destination, 0, 0);
     break;
   //case FACEDETECT:
-  //  PImage gaussImage = loadImage("nikanew.jpg");
-  //  //size(1200,1200);
-  //  opencv = new OpenCV(this, gaussImage);
-  //  opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
-  //  scale(0.25);
-  //  image(destination, 0, 0); 
-  //  faces = opencv.detect();
-  //  image(opencv.getInput(), 0, 0);
-  //  noFill();
-  //  stroke(0, 255, 0);
-  //  strokeWeight(3);
-  //  for (BoundingBox boxPoint : boxPoints) {
-  //    boxPoint.getFaces(faces);
-  //    boxPoint.boxSizeCheck();
-  //    boxPoint.draw();
-  //  }
-  //  break;
   //case SOBEL:
   //  break;
     /*case CORNER:
@@ -182,18 +169,40 @@ void update() {
   }
 }
 
-void mouseClicked() {
+boolean screenScrollControl() {
+  if(mouseY < DISPLAYHEIGHT){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void mouseWheel(MouseEvent event){
+  int direction = (event.getCount());
+  //direction = constrain(direction,-10,10);
+  println(direction);
+  if (direction > 0) {
+    if(state.state > 0){
+      state.prev();
+    }
+    else{
+      state.state = BEGIN;
+    }
+  }else {
+    state.next();
+  }
+  
   switch(state.state) {
-  case BEGIN:
-    state.next();
-  case GRAY:
-    state.next();
-  case GAUSSIAN:
-    state.next();
-  //case FACEDETECT:
-  //  state.next();
-  //case SOBEL:
-  //  break;
+    case BEGIN:
+      state.next();
+    case GRAY:
+      state.next();
+    case GAUSSIAN:
+      state.next();
+    case FACEDETECT:
+      state.next();
+    case SOBEL:
+      break;
   }
 }
 
