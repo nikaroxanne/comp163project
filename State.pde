@@ -20,4 +20,7 @@ class State{
   void next(){
     state++;
   }
+  void prev() {
+    state--;
+  }
 }
