@@ -1,57 +1,49 @@
-/*
-https://www.eecs.tufts.edu/~aloupis/comp160/classnotes/160-selection-deterministic.pdf
-
-https://www.ics.uci.edu/~eppstein/161/960130.html
-
-looking for element with rank r 
-in range (1...n)
-
-
-select(int median, ArrayList FacePoints){
-  if FacePoints.size() < 10 {
-    sort(FacePoints); // some in-place swapping insertion sort prob
-    return FacePoints.get(median);
-  }
-}
-
-partition FacePoints into subsets of five elements
-There will be a total of n/5 subsets (range of i...n/5)
-
-//median of each group//
-for (i=1 to n/5){
- select(subset[i], 3)
-};
-
-//median of medians//
-x = median of medians
-
-//compare all elements to x to find rank[x] = p
-
-if rank[x]=p=r, we're done
-else use x as privot to partition input
-
-if p > r // search lower
-  Select(r, 1...p-1)
-  
-else //if (p < r), search higher
-Select(r-p, p+1...n);
-
-
-
-//other notes//
-
-partition total ArrayList into 3 groups:
-L1 < M, L2 = M, l3 > M
-if rank[M]
+/* references:
+http://www.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring14/hw-kdtree.html
+https://www.cs.umd.edu/class/spring2002/cmsc420-0401/pbasic.pdf
+https://www.cs.princeton.edu/~rs/AlgsDS07/08BinarySearchTrees.pdf
 */
 
-/* Building kd tree can be done using a randomized pivot but the deterministic median finding algorithm runs in O(n)
-The median is used for each division in a kd tree so this feels like an important module to build in
+class kd_tree {
+  kdNode root;
+  int numberofNodes;
+  int depth;
+}
+/*the same split (i.e. horizontal or vertical) is used for all nodes at the same dimension
+the next enumerated type for the split is chosen for the successive level of tree */
+/*
+enum:
+0 = none
+1 = horizontal
+2 = vertical
+*/
 
-kd tree
-1. find median of x values, use as first partition
-2. find median of y values, use as next partition
-3. recurse until all points are used as medial axes to divide the space
-
-this can be used later to determine voronoi diagrams -- an extension of a medial axil division
-also can be used for medial axis skeletonization
+class kdNode extends FacePoint{
+  FacePoint p;
+  enum direction;
+  kdNode left, right;
+  
+  kdNode(Facepoint p){
+    left = null;
+    right = null;
+    direction = 0;
+    this.p.x = p.x;
+    this.p.y = p.y;
+  };
+  
+  
+  kdNode insertNode(kdNode root, FacePoint p){
+    if (root == null){
+      new kdNode(p);
+    }
+    int cmp = p.x.compareTo(root.x);
+    if (cmp == 0){
+      root.x = p.x;
+    }
+    else if (cmp < 0) {
+      root.left = put(p.left, p.x, p.y);
+    } else {
+      root.right = put(p.right, p.x, p.y);
+    }
+    return root;
+}
