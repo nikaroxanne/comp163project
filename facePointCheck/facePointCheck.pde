@@ -262,11 +262,9 @@ void draw() {
     //facePoint.VISITED = false;
   }
   */
-  /*
-  for (FacePoint hullPoint : hullPoints) {
-    hullPoint.showPoint();
-  }
-  */
+  
+  
+  
   //drawHull();
   stroke(0, 255, 0);
   noFill();
@@ -280,12 +278,19 @@ void draw() {
     grahamScan.buildHull();
   }
   grahamScan.printHull();
-  int hullsize = grahamScan.convexhullpoints.size();
+  grahamScan.drawEdges();
+  for (FacePoint hullPoint : hullPoints) {
+    hullPoint.showPoint();
+  }
+  //saveFrame("grahamScan/#####.png");
+  //int hullsize = grahamScan.convexhullpoints.size();
+  /*
   for (int i=0; i< hullsize -1 ; i++) {
         FacePoint a = grahamScan.convexhullpoints.get(i);
         FacePoint b = grahamScan.convexhullpoints.get(i+1);
         line(a.x, a.y, b.x, b.y);
    }
+   */
    
    
    
@@ -321,9 +326,9 @@ void draw() {
 //int direction = 1;
 //int currentPoint = 2;
 
-boolean isRightTurn(FacePoint a, FacePoint b, FacePoint c) {
-  return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) >= 0;
-}
+//boolean isRightTurn(FacePoint a, FacePoint b, FacePoint c) {
+//  return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) >= 0;
+//}
 
 //divide and conquer algo
 /*

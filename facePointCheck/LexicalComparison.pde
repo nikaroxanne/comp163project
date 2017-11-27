@@ -107,6 +107,7 @@ requires lexicographic comparison, so that if two points share the same x value,
        } else if (polarAngleVal > 0) {
          comparison = -1;
        } else {
+         /*
          
          //if 2 points have same anglevalue, sort by distance
          if (f1.dist > f2.dist) {
@@ -115,8 +116,8 @@ requires lexicographic comparison, so that if two points share the same x value,
          } else if (f1.dist < f2.dist) {
            comparison= -1;
          }
-         
-         //comparison = 0;
+         */
+         comparison = 0;
          
        }
        //return pointXfirst - pointXsecond;
