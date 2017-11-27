@@ -101,10 +101,10 @@ requires lexicographic comparison, so that if two points share the same x value,
        //float pointYsecond = f2.getYCoord();
        //if 2 points have same y value, sort by x value
        int comparison = 0;
-       float polarAngleVal = f2.angle - f1.angle;
-       if (polarAngleVal < 0){
+       float polarAngleVal = f1.angle - f2.angle;
+       if (polarAngleVal > 0){
          comparison = 1;
-       } else if (polarAngleVal > 0) {
+       } else if (polarAngleVal < 0) {
          comparison = -1;
        } else {
          /*
