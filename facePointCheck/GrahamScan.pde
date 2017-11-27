@@ -20,27 +20,32 @@ class GrahamScan {
     this.numFacePoints = facepoints.size();
 
     //Collections.sort(facepoints, new PointYSort());
-    FacePoint start = facepoints.get(0);
+    //FacePoint start = facepoints.get(0);
 
-    convexhullpoints.add(start);
-    //facePoints radially sorted with respect to point with min Y value
-    Collections.sort(facepoints, new PointAngleSort());
+    //convexhullpoints.add(start);
     
-    /* printing to ensure all values of facepoints are sorted*/
+    //facePoints radially sorted with respect to point with min Y value
+    
+    FacePoint hullYMin = facepoints.get(0);
+    facepoints.remove(0);
+    Collections.sort(facepoints, new PointAngleSort());
+    println("YMIN is: " + YMIN.x + ", " + YMIN.y);
+    /*sure all values of facepoints are sorted*/
     for (int i=0; i < facePoints.size(); i++) {
       float xCoord = facePoints.get(i).x;
       float yCoord = facePoints.get(i).y;
-      println("xCoord is " + xCoord + "and YCoord is " + yCoord + "and id is " + i);
-    }
+      float angleVal = facePoints.get(i).angle;
+      println("xCoord is " + xCoord + "and YCoord is " + yCoord + "and angle is: " + angleVal + "and id is");     }
   
-    
-    FacePoint firstTest = facepoints.get(1);
-    FacePoint secondTest = facepoints.get(2);
+    //FacePoint hullYMin = facepoints.get(0);
+    FacePoint firstTest = facepoints.get(0);
+    FacePoint secondTest = facepoints.get(1);
+    convexhullpoints.add(hullYMin);
     convexhullpoints.add(firstTest);
     convexhullpoints.add(secondTest);
-    println("convexhull point at index 0" + convexhullpoints.get(0));
-    println("convexhull point at index 1" + convexhullpoints.get(1));
-    println("convexhull point at index 2" + convexhullpoints.get(2));
+    println("convexhull point at index 0" + convexhullpoints.get(0).x, convexhullpoints.get(0).y);
+    println("convexhull point at index 1" + convexhullpoints.get(1).x, convexhullpoints.get(1).y);
+    println("convexhull point at index 2" + convexhullpoints.get(2).x, convexhullpoints.get(2).y);
     this.indexFacePoints = 2;
   }
 
@@ -57,7 +62,7 @@ class GrahamScan {
       //if direction is counterclockwise, if LEFT TURN
       if (direction < 0) {
 
-        if (hullSize > 2) {
+        if (hullSize > 3) {
           while (direction < 0 && hullSize > 3) {
             convexhullpoints.remove(h2);
             h1 = convexhullpoints.get(convexhullpoints.size() - 3);
@@ -73,7 +78,7 @@ class GrahamScan {
           indexFacePoints++;
         }
         //else if direction is clockwise, then RIGHT TURN
-      } else if ((direction >=0) && indexFacePoints <= numFacePoints) {
+      } else if ((direction >=0) && indexFacePoints < numFacePoints) {
         //go to next point
         int entrypoint = ((indexFacePoints + 1) % numFacePoints);
         convexhullpoints.add(facepoints.get(entrypoint));
@@ -86,10 +91,17 @@ class GrahamScan {
   // compare all points to y min using polar angle
   //sort all points by angle in counterclockwise order around y min
 
+  //calculate cross product between two vectors p2-p1 and p3-p2
+  //https://stackoverflow.com/questions/27635188/algorithm-to-detect-left-or-right-turn-from-x-y-co-ordinates
   float orientation(FacePoint p1, FacePoint p2, FacePoint p3) {
-    //expression is negative when orientation is counterclockwise, 
-    float orientation = (p2.y - p1.y)*(p3.x - p2.x) - (p3.y- p2.y)*(p2.x-p1.x);
-    //expression is positive when orientation is clockwise
+    float x1 = p2.x - p1.x;
+    float y1 = p2.y - p1.y;
+    float x2 = p3.x - p2.x;
+    float y2 = p3.y - p2.y;
+    
+    float orientation = (x1 * y2) - (y1 * x2);
+    //expression is negative when orientation is counterclockwise, RIGHT TURN
+    //expression is positive when orientation is clockwise, LEFT TURN
     return orientation;
     //expression is 0 when points are collinear
   }

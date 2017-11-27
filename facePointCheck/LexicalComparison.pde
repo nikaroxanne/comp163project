@@ -59,6 +59,11 @@ requires lexicographic comparison, so that if two points share the same x value,
      }
    };
    
+   /****************************************************************/
+   /*YSort sorts FacePoint objects in ascending order */
+   /* y values in pixel location are visually shown in the opposite position */
+   /* thus, YMIN is at the final index in the ArrayList<FacePoint> and not at index 0 */
+   /*****************************************/
    public class PointYSort implements Comparator<FacePoint> {
      public PointYSort(){
      }
@@ -68,9 +73,9 @@ requires lexicographic comparison, so that if two points share the same x value,
        //float pointYsecond = f2.getYCoord();
        //if 2 points have same y value, sort by x value
        int comparison = 0;
-       if (f1.y > f2.y){
+       if (f1.y < f2.y){
          comparison = 1;
-       } else if (f1.y < f2.y) {
+       } else if (f1.y > f2.y) {
          comparison = -1;
        } else {
          //if 2 points have same x value, sort by y value
@@ -96,22 +101,22 @@ requires lexicographic comparison, so that if two points share the same x value,
        //float pointYsecond = f2.getYCoord();
        //if 2 points have same y value, sort by x value
        int comparison = 0;
-       //float polarAngleval = f1.angle - f2.angle;
-       if (f1.angle > f2.angle){
+       float polarAngleVal = f2.angle - f1.angle;
+       if (polarAngleVal < 0){
          comparison = 1;
-       } else if (f1.angle < f2.angle) {
+       } else if (polarAngleVal > 0) {
          comparison = -1;
        } else {
-         /*
-         //if 2 points have same x value, sort by y value
+         
+         //if 2 points have same anglevalue, sort by distance
          if (f1.dist > f2.dist) {
            comparison = 1;
            
          } else if (f1.dist < f2.dist) {
            comparison= -1;
          }
-         */
-         comparison = 0;
+         
+         //comparison = 0;
          
        }
        //return pointXfirst - pointXsecond;

@@ -127,17 +127,17 @@ void setup() {
   hullPoints = new ArrayList();
   
   Collections.sort(facePoints, new PointYSort());
-  int facePointsLastIndex = facePoints.size()-1;
-  YMIN = facePoints.get(facePointsLastIndex);
+  //int facePointsLastIndex = facePoints.size()-1;
+  YMIN = facePoints.get(0);
   YMINY = YMIN.y;
   YMINX = YMIN.x;
   println("YMINY is " + YMINY + "and YMINX is: " + YMINX);
   
   grahamScan = new GrahamScan(facePoints);
   //grahamScan.buildHull();
-  grahamScan.printHull();
+  //grahamScan.printHull();
   //hullPoints = grahamScan.convexhullpoints;
-  grahamScan.drawEdges();
+  //grahamScan.drawEdges();
   //drawHull();
   //int facesSize = facePoints.size();
   //int [] xVals = new int [facesSize];
@@ -273,7 +273,7 @@ void draw() {
   stroke(5);
   ellipse(YMIN.x, YMIN.y, 5, 5);
   
-  /*
+  
   if(animate){
     grahamScan.buildHull();
   }
@@ -283,7 +283,7 @@ void draw() {
         FacePoint b = grahamScan.convexhullpoints.get(i+1);
         line(a.x, a.y, b.x, b.y);
    }
-   */
+   
    
    
   //float [] xVals = new float [69];
