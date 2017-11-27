@@ -11,6 +11,8 @@ int matrixSize = 3;
 float xMin, yMin, xMax, yMax;
 boolean isRightTurn = false;
 boolean animate = true;
+boolean saveFrames = true;
+int maxFrames = 10;
 
 PImage src, img, destination, imgMask;
 ArrayList<BoundingBox> boxPoints;
@@ -277,6 +279,7 @@ void draw() {
   if(animate){
     grahamScan.buildHull();
   }
+  grahamScan.printHull();
   int hullsize = grahamScan.convexhullpoints.size();
   for (int i=0; i< hullsize -1 ; i++) {
         FacePoint a = grahamScan.convexhullpoints.get(i);

@@ -17,7 +17,7 @@ class GrahamScan {
   GrahamScan(ArrayList<FacePoint> facepoints) {
     this.facepoints = facepoints;
     this.convexhullpoints = new ArrayList<FacePoint>();
-    this.numFacePoints = facepoints.size();
+    //this.numFacePoints = facepoints.size();
 
     //Collections.sort(facepoints, new PointYSort());
     //FacePoint start = facepoints.get(0);
@@ -47,6 +47,7 @@ class GrahamScan {
     println("convexhull point at index 1" + convexhullpoints.get(1).x, convexhullpoints.get(1).y);
     println("convexhull point at index 2" + convexhullpoints.get(2).x, convexhullpoints.get(2).y);
     this.indexFacePoints = 2;
+    this.numFacePoints = facepoints.size();
   }
 
   void buildHull() {
@@ -65,9 +66,11 @@ class GrahamScan {
         if (hullSize > 3) {
           while (direction < 0 && hullSize > 3) {
             convexhullpoints.remove(h2);
+            hullSize = convexhullpoints.size();
             h1 = convexhullpoints.get(convexhullpoints.size() - 3);
             h2 = convexhullpoints.get(convexhullpoints.size() - 2);
             h3 = convexhullpoints.get(convexhullpoints.size() - 1);
+            direction = orientation(h1, h2, h3);
           }
         } else {
           convexhullpoints.remove(h2);
