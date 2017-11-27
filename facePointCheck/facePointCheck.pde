@@ -1,6 +1,7 @@
 import gab.opencv.*;
 import java.awt.Rectangle;
 import java.util.Collections;
+import java.util.Comparator;
 
 
 final int SCALEFACTOR = 1;
@@ -8,13 +9,21 @@ final int DISPLAYWIDTH = 600;
 final int DISPLAYHEIGHT = 600;
 int matrixSize = 3;
 float xMin, yMin, xMax, yMax;
+boolean isRightTurn = false;
+boolean animate = true;
 
 PImage src, img, destination, imgMask;
 ArrayList<BoundingBox> boxPoints;
 ArrayList<FacePoint> facePoints;
+ArrayList<FacePoint> hullPoints;
+GrahamScan grahamScan;
+//ArrayList<FacePoint> lUpperPoints;
+//ArrayList<FacePoint> lLowerPoints;
 ArrayList<Edge> edges;
 Rectangle[] faces;
 OpenCV opencv;
+FacePoint YMIN;
+float YMINY, YMINX;
 
 //Facepoint [] facepoints = {(322, 258, 6.32),
 /*334 250 27.8},
@@ -114,7 +123,292 @@ void setup() {
   faces = opencv.detect();
   checkFaces(faces);
   facePoints = new ArrayList();
+  addFaces();
+  hullPoints = new ArrayList();
+  
+  Collections.sort(facePoints, new PointYSort());
+  int facePointsLastIndex = facePoints.size()-1;
+  YMIN = facePoints.get(facePointsLastIndex);
+  YMINY = YMIN.y;
+  YMINX = YMIN.x;
+  println("YMINY is " + YMINY + "and YMINX is: " + YMINX);
+  
+  grahamScan = new GrahamScan(facePoints);
+  //grahamScan.buildHull();
+  grahamScan.printHull();
+  //hullPoints = grahamScan.convexhullpoints;
+  grahamScan.drawEdges();
+  //drawHull();
+  //int facesSize = facePoints.size();
+  //int [] xVals = new int [facesSize];
+  //int [] yVals = new int [facesSize];
+  ////facePoints = java.util.Collections.sort(facePoints);
 
+  ////really slow brute force way of sorting with a lot of overhead space storage
+  //for (int i = 0; i < facePoints.size(); i++) {
+  //  FacePoint facepointA = facePoints.get(i);
+  //  xVals[i] = facepointA.x;
+  //  yVals[i] = facepointA.y;
+  //  xVals[i]++;
+  //  yVals[i]++;
+  //  //FacePoint facepointB = facePoints.get(i+1);
+  //  //if((facepointA.VISITED == false) && (facepointB.VISITED == false)) {
+  //  //  edges.add(new Edge(facepointA, facepointB));
+  //  //}
+  //  //facepointA.VISITED = true;
+  //  //facepointB.VISITED = true;
+  //}
+  //xVals = sort(xVals);
+  //yVals = sort(yVals);
+  //xMax = max(xVals);
+  //yMax = max(yVals);
+  //println(xMax);
+  //println(yMax);
+  //xMin = min(xVals);
+  //yMin = min(yVals);
+  //println(xMin);
+  //println(yMin);
+
+  //for(int i=0; i < xVals.length; i++){
+  //  int xvalArray = xVals[i];
+  //  println("xCoord is " + xvalArray + "and id is " + i);
+  //}
+
+  //int lowestxval = facePoints.get(0).x;
+  //println(lowestxval);
+
+  Collections.sort(facePoints, new PointXSort());
+  
+  //testing for correct sorting of collections
+  /*
+  for (int i=0; i < facePoints.size(); i++) {
+    float xCoord = facePoints.get(i).x;
+    float yCoord = facePoints.get(i).y;
+
+    println("xCoord is " + xCoord + "and YCoord is " + yCoord + "and id is " + i);
+  }
+  
+  Collections.sort(facePoints, new PointYSort());
+  for (int i=0; i < facePoints.size(); i++) {
+    float xCoord = facePoints.get(i).x;
+    float yCoord = facePoints.get(i).y;
+
+    println("xCoord is " + xCoord + "and YCoord is " + yCoord + "and id is " + i);
+  }
+  
+  */
+  
+  
+  //for divide and conquer method
+  /*
+  FacePoint hullstart = facePoints.get(0);
+  hullPoints.add(hullstart);
+  FacePoint hullnext = facePoints.get(1);
+  hullPoints.add(hullnext);
+  makeHull();
+  //printHull();
+  
+  */
+  
+  //for Graham Scan method
+  
+
+  edges = new ArrayList();
+  //for (int i=0; i < facePoints.size(); i++) {
+  //  FacePoint facepointYcheck = facePoints.get(i);
+  //  if (facepointYcheck.y == yMin) {
+  //    for (int j=0; j < facePoints.size()-1; j++) {
+  //      FacePoint facepointYRadial = facePoints.get(j);
+  //      if (facepointYRadial != facepointYcheck) {
+  //        edges.add(new Edge(facepointYcheck, facepointYRadial));
+  //      }
+  //    }
+  //  }
+  //}
+  //  int index = xIndices.get(facepointX);
+  //  facePoints.get(i).id = index;
+  //  println(index);
+  //}
+
+
+
+  frameRate(5);
+}
+
+void draw() {
+  background(0);
+  image(src, 0, 0);
+  filter(BLUR, 1);
+  //imgMask.resize(faceWidth, faceHeight);
+  //image(imgMask, faceX, faceY);
+  for (BoundingBox boxPoint : boxPoints) {
+    boxPoint.draw();
+  }
+  fill(0, 0, 0);
+  
+  //if(mousePressed == true){
+  //  float brightnessGradient = averageGradient(mouseX,mouseY, matrixSize, src);
+  //  facePoints.add(new FacePoint(mouseX, mouseY, brightnessGradient));
+  //  //ellipse(mouseX, mouseY, 2, 2);
+  //  println(mouseX, mouseY, brightnessGradient);
+  //}
+  //facePoints.add(new FacePoint(322, 258, 6.32));
+
+/*
+  for (FacePoint facePoint : facePoints) {
+    facePoint.showPoint();
+    //facePoint.VISITED = false;
+  }
+  */
+  /*
+  for (FacePoint hullPoint : hullPoints) {
+    hullPoint.showPoint();
+  }
+  */
+  //drawHull();
+  stroke(0, 255, 0);
+  noFill();
+  //rect(xMin, yMin, xMax - xMin, yMax - yMin);
+  
+  stroke(5);
+  ellipse(YMIN.x, YMIN.y, 5, 5);
+  
+  /*
+  if(animate){
+    grahamScan.buildHull();
+  }
+  int hullsize = grahamScan.convexhullpoints.size();
+  for (int i=0; i< hullsize -1 ; i++) {
+        FacePoint a = grahamScan.convexhullpoints.get(i);
+        FacePoint b = grahamScan.convexhullpoints.get(i+1);
+        line(a.x, a.y, b.x, b.y);
+   }
+   */
+   
+   
+  //float [] xVals = new float [69];
+  //float [] yVals = new float [69];
+  ////facePoints = java.util.Collections.sort(facePoints);
+  //for (int i = 0; i < facePoints.size(); i++) {
+  //   FacePoint facepointA = facePoints.get(i);
+  //   xVals[0] = facepointA.x;
+  //   yVals[0] = facepointA.y;
+  //   //FacePoint facepointB = facePoints.get(i+1);
+  //   //if((facepointA.VISITED == false) && (facepointB.VISITED == false)) {
+  //   //  edges.add(new Edge(facepointA, facepointB));
+  //   //}
+  //   //facepointA.VISITED = true;
+  //   //facepointB.VISITED = true;
+  //}
+  //xVals = sort(xVals);
+  //yVals = sort(yVals);
+  //float xMax = max(xVals);
+  //float yMax = max(yVals);
+  //println(xMax);
+  //println(yMax);
+
+  //for (Edge edge : edges) {
+  //  edge.draw();
+  //  println(edge.a.x, edge.b.x);
+  //}
+  //saveFrame("pointApproximations.jpg");
+  //addPoints(mouseX, mouseY);
+}
+
+//int direction = 1;
+//int currentPoint = 2;
+
+boolean isRightTurn(FacePoint a, FacePoint b, FacePoint c) {
+  return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) >= 0;
+}
+
+//divide and conquer algo
+/*
+void makeHull() {
+  //lUpperPoints = new ArrayList();
+  //lLowerPoints = new ArrayList();
+  //FacePoint h1 = hullstart;
+  //FacePoint h2 = hullnext;
+  //lUpperPoints.add(h1);
+  //lUpperPoints.add(h2);
+  for (int i=2; i < facePoints.size(); i++) {
+    hullPoints.add(facePoints.get(i));
+    FacePoint h1 = hullPoints.get(hullPoints.size() - 3);
+    FacePoint h2 = hullPoints.get(hullPoints.size() - 2);
+    FacePoint h3 = hullPoints.get(hullPoints.size() - 1);
+    //int faceBounds = facePoints.size();
+    //FacePoint h3 = facePoints.get(2);
+    //for (int i=3; i < faceBounds; i++){
+    //  FacePoint h3 = facePoints.get(i);
+    //lUpperPoints.add(h3);
+    while ((hullPoints.size() > 3) && (!isRightTurn(h1, h2, h3))) {
+      //lUpperPoints.remove(h2);
+      hullPoints.remove(hullPoints.size() -2);
+
+      if (hullPoints.size() >= 3) {
+        h1 = hullPoints.get(hullPoints.size() - 3);
+        h2 = hullPoints.get(hullPoints.size() - 2);
+        h3 = hullPoints.get(hullPoints.size() - 1);
+      }
+    }
+    if (i == (facePoints.size() -1) || currentPoint == 0) {
+      direction = direction *= -1;
+    }
+    currentPoint+=direction;
+  }
+  //for (int j =(faceBounds-2); j >=1; j--){
+  //  FacePoint hlow3 = facePoints.get(j);
+  //  FacePoint hlow2 = facePoints.get(j-1);
+  //  FacePoint hlow1 = facePoints.get(j-2);
+  //  lLowerPoints.add(hlow3);
+  //  while ((lLowerPoints.size() > 2) && (!isRightTurn(hlow1,hlow2,hlow3))){
+  //    lLowerPoints.remove(hlow2);
+  //  }
+  //}
+  //lLowerPoints.remove(0);
+  //int lowerHullLast = lLowerPoints.size()-1;
+  //lLowerPoints.remove(lowerHullLast);
+  //for (FacePoint point : lUpperPoints) {
+  //  hullPoints.add(point);
+  //}
+  //for (FacePoint point : lLowerPoints) {
+  //  hullPoints.add(point);
+  //}
+}
+*/
+
+/*
+void printHull() {
+  for (FacePoint point : hullPoints) {
+    float xVal = point.getXCoord();
+    float yVal = point.getYCoord();
+    println("HullPoint located at: " + xVal + "and" + yVal);
+  }
+}
+
+void drawHull(){
+  for (int i=0; i< hullPoints.size()-1; i++){
+    FacePoint p1 = hullPoints.get(i);
+    FacePoint p2 = hullPoints.get(i+1);
+    line(p1.x, p1.y, p2.x, p2.y);
+  }
+}
+
+*/
+
+void checkFaces(Rectangle[] faces) {
+  for (int i=0; i < faces.length; i++) {
+    int facewidth = (faces[i].width)/SCALEFACTOR;
+    int faceheight = (faces[i].height)/SCALEFACTOR;
+    int faceX = (faces[i].x)/SCALEFACTOR;
+    int faceY = (faces[i].y)/SCALEFACTOR;
+    if ((faceheight > 100) && (facewidth > 100)) {
+      boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
+    }
+  }
+}
+
+void addFaces() {
   /* hard-coded ArrayList of drawn FacePoints */
   facePoints.add(new FacePoint(322, 258, 6.32));
   facePoints.add(new FacePoint(421, 242, 58.4)); 
@@ -189,151 +483,8 @@ void setup() {
   facePoints.add(new FacePoint(410, 362, 54.52));
   facePoints.add(new FacePoint(424, 360, 66.08));
   facePoints.add(new FacePoint(432, 352, 64.72));
-  int facesSize = facePoints.size();
-  float [] xVals = new float [facesSize];
-  float [] yVals = new float [facesSize];
-  //facePoints = java.util.Collections.sort(facePoints);
-  for (int i = 0; i < facePoints.size(); i++) {
-     FacePoint facepointA = facePoints.get(i);
-     xVals[i] = facepointA.x;
-     yVals[i] = facepointA.y;
-     xVals[i]++;
-     yVals[i]++;
-     //FacePoint facepointB = facePoints.get(i+1);
-     //if((facepointA.VISITED == false) && (facepointB.VISITED == false)) {
-     //  edges.add(new Edge(facepointA, facepointB));
-     //}
-     //facepointA.VISITED = true;
-     //facepointB.VISITED = true;
-  }
-  xVals = sort(xVals);
-  yVals = sort(yVals);
-  xMax = max(xVals);
-  yMax = max(yVals);
-  println(xMax);
-  println(yMax);
-  xMin = min(xVals);
-  yMin = min(yVals);
-  println(xMin);
-  println(yMin);
-  
-  edges = new ArrayList();
-  frameRate(5);
 }
 
-void draw() {
-  background(0);
-  image(src, 0, 0);
-  //tint(255,127);
-  filter(BLUR, 1);
-  //int faceX = boxPoints.get(0).x;
-  //int faceY = boxPoints.get(0).y;
-  //int faceWidth = boxPoints.get(0).width;
-  //int faceHeight = boxPoints.get(0).height;
-  //imgMask.resize(faceWidth, faceHeight);
-  //image(imgMask, faceX, faceY);
-  for (BoundingBox boxPoint : boxPoints) {
-    boxPoint.draw();
-  }
-  fill(0, 0, 0);
-  //if(mousePressed == true){
-  //  float brightnessGradient = averageGradient(mouseX,mouseY, matrixSize, src);
-  //  facePoints.add(new FacePoint(mouseX, mouseY, brightnessGradient));
-  //  //ellipse(mouseX, mouseY, 2, 2);
-  //  println(mouseX, mouseY, brightnessGradient);
-  //}
-  //facePoints.add(new FacePoint(322, 258, 6.32));
-
-  for (FacePoint facePoint : facePoints) {
-    facePoint.showPoint();
-    facePoint.VISITED = false;
-  }
-  
-  stroke(0,255,0);
-  noFill();
-  rect(xMin, yMin, xMax - xMin, yMax - yMin);
-  //float [] xVals = new float [69];
-  //float [] yVals = new float [69];
-  ////facePoints = java.util.Collections.sort(facePoints);
-  //for (int i = 0; i < facePoints.size(); i++) {
-  //   FacePoint facepointA = facePoints.get(i);
-  //   xVals[0] = facepointA.x;
-  //   yVals[0] = facepointA.y;
-  //   //FacePoint facepointB = facePoints.get(i+1);
-  //   //if((facepointA.VISITED == false) && (facepointB.VISITED == false)) {
-  //   //  edges.add(new Edge(facepointA, facepointB));
-  //   //}
-  //   //facepointA.VISITED = true;
-  //   //facepointB.VISITED = true;
-  //}
-  //xVals = sort(xVals);
-  //yVals = sort(yVals);
-  //float xMax = max(xVals);
-  //float yMax = max(yVals);
-  //println(xMax);
-  //println(yMax);
-
-  //for (Edge edge : edges) {
-  //  //edge.draw();
-  //  println(edge.a.x, edge.b.x);
-  //}
-  //saveFrame("pointApproximations.jpg");
-  //addPoints(mouseX, mouseY);
-}
-
-void checkFaces(Rectangle[] faces) {
-  for (int i=0; i < faces.length; i++) {
-    int facewidth = (faces[i].width)/SCALEFACTOR;
-    int faceheight = (faces[i].height)/SCALEFACTOR;
-    int faceX = (faces[i].x)/SCALEFACTOR;
-    int faceY = (faces[i].y)/SCALEFACTOR;
-    if ((faceheight > 100) && (facewidth > 100)) {
-      boxPoints.add(new BoundingBox(faceX, faceY, facewidth, faceheight));
-    }
-  }
-}
-
-float sobel(int x, int y, float[][] matrixH, float[][] matrixV, int matrixsize, PImage img) {
-  float sobelX = 0.0;
-  float sobelY = 0.0;
-  float sobelFinal = 0.0;
-  int offset = matrixsize/2;
-  for (int i=1; i<matrixsize; i++) {
-    for (int j=1; j<matrixsize; j++) {
-      int xloc = (x+i) - offset;
-      int yloc = (y-j) - offset;
-      int loc = xloc + img.width*yloc;
-      loc = constrain(loc, 0, img.pixels.length-1);
-      sobelX += (brightness(img.pixels[loc])*matrixH[i][j]);
-      sobelY += (brightness(img.pixels[loc])*matrixV[i][j]);
-    }
-  }
-  sobelFinal = sqrt(sq(sobelX) + sq(sobelY));
-  sobelFinal = constrain(sobelFinal, 0, 255);
-  print(sobelFinal);
-  return sobelFinal;
-}
-
-float averageGradient(int x, int y, int matrixsize, PImage img) {
-  float brightnessavg = 0.0;
-  int offset = matrixsize/2;
-  for (int i=0; i<matrixsize; i++) {
-    for (int j=0; j<matrixsize; j++) {
-      int xloc = (x+i) - offset;
-      int yloc = (y-j) - offset;
-      int loc = xloc + img.width*yloc;
-      //int mid = x + y*img.width;
-      loc = constrain(loc, 0, img.pixels.length-1);
-      //mid = constrain(mid, 0, img.pixels.length-1);
-      brightnessavg += (brightness(img.pixels[loc]));
-      //brightnessavg += abs((brightness(img.pixels[mid]))- ((brightness(img.pixels[loc]))));
-      //print(brightnessavg);
-    }
-  }
-  brightnessavg /= 25.00;
-  brightnessavg = constrain(brightnessavg, 0, 255);
-  return brightnessavg;
-}
 //void addPoints(int mouseX, int mouseY){
 //  if(mousePressed == true){
 //    ellipse(mouseX, mouseY, 2, 2);
