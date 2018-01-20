@@ -36,6 +36,8 @@ OpenCV opencv;
 
 ToxiclibsSupport gfx;
 Voronoi voronoi;
+SutherlandHodgemanClipper rectClipper;
+Rect bounds;
 
 FacePoint YMIN;
 float YMINY, YMINX;
@@ -75,16 +77,25 @@ void setup() {
   checkFaces(faces);
   facePoints = new ArrayList();
   addFaces();
-  
+
   gfx = new ToxiclibsSupport(this);
   voronoi = new Voronoi();
+
+  BoundingBox boxMain = boxPoints.get(0);
+  int rectX = boxMain.x;
+  int rectY = boxMain.y;
+  int rectWidth = boxMain.width;
+  int rectHeight = boxMain.height;
+
+  bounds = new Rect(rectX, rectY, rectWidth, rectHeight);
+  rectClipper = new SutherlandHodgemanClipper(bounds);
   edges = new ArrayList();
 }
 
 void draw() {
   background(0);
   image(src, 0, 0);
-  filter(BLUR, 1);
+  //filter(BLUR, 1);
   //imgMask.resize(faceWidth, faceHeight);
   //image(imgMask, faceX, faceY);
   for (BoundingBox boxPoint : boxPoints) {
@@ -97,29 +108,51 @@ void draw() {
     voronoi.addPoint(new Vec2D(facePoint.getXCoord(), facePoint.getYCoord()));
     //facePoint.VISITED = false;
   }
-  
-  
-  for (Polygon2D polygon: voronoi.getRegions() ) {
-    gfx.polygon2D( polygon );
+
+  for (Polygon2D polygon : voronoi.getRegions() ) {
+    gfx.polygon2D( rectClipper.clipPolygon(polygon));
     stroke(0);
-    fill(255,0,0,63); 
+    fill(255, 0, 255, 15); 
+    strokeWeight(1);
   }
-  
+
+  beginShape(TRIANGLES);
+  for (Triangle2D delTri : voronoi.getTriangles() ) {
+    gfx.triangle(delTri);
+    stroke(0, 200, 200);
+    //fill(255,0,0,63);
+    strokeWeight(1);
+  }
+  endShape();
+
   //drawHull();
-  stroke(0, 255, 0);
-  noFill();
+  //stroke(0, 255, 0);
+  //noFill();
   //fill(255,0,0,63);
   //rect(xMin, yMin, xMax - xMin, yMax - yMin);
-  
+
   //stroke(10);
 }
- 
+
 
 void mousePressed() {
-    save("voronoi-####.jpg");
+  //save("voronoi-####.jpg");
+  addPoints(mouseX, mouseY);
 }
-  
 
+void keyPressed() {
+  switch(key) {
+  case '1':
+    saveFrame("steiner1.jpg");
+    break;
+  case '2':
+    saveFrame("steiner2.jpg");
+    break;
+  case '3':
+    saveFrame("steiner3.jpg");
+    break;
+  }
+}
 
 
 void checkFaces(Rectangle[] faces) {
@@ -211,10 +244,15 @@ void addFaces() {
   facePoints.add(new FacePoint(432, 352, 64.72));
 }
 
-//void addPoints(int mouseX, int mouseY){
-//  if(mousePressed == true){
-//    ellipse(mouseX, mouseY, 2, 2);
-//    fill(0,0,0);
-//    println(mouseX, mouseY);
-//  }
-//}
+void addPoints(int mouseX, int mouseY) {
+  if (mousePressed == true) {
+    ellipse(mouseX, mouseY, 2, 2);
+    fill(0, 0, 0);
+    println(mouseX, mouseY);
+    int steinerVal = mouseX + (mouseY * width);
+    float brightSteiner = brightness(steinerVal);
+    println(brightSteiner);
+    //FacePoint steiner = facePoints.add(new FacePoint(mouseX, mouseY, brightSteiner));
+    voronoi.addPoint(new Vec2D(mouseX, mouseY));
+  }
+}
