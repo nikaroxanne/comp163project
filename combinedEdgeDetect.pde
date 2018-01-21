@@ -87,14 +87,16 @@ class BoundingBox {
     rectYEnd = rectY + rectHeight;
     
     destination = createImage(img.width, img.height, RGB);
-    //edgeFinal = createImage(img.width, img.height, RGB);
-    src.loadPixels();
-    //edgeFinal.loadPixels();
+    edgeFinal = createImage(img.width, img.height, RGB);
     
+    src.loadPixels();
     destination.loadPixels();
     updateSobel();
     destination.updatePixels();
-    //updateRoberts();
+    
+    edgeFinal.loadPixels();
+    updateRoberts();
+    edgeFinal.updatePixels();
   }
   
   void draw(){
@@ -108,6 +110,7 @@ class BoundingBox {
       boxPoint.draw();
     }
     copy(destination, rectX, rectY, rectWidth, rectHeight, rectX, rectY, rectWidth, rectHeight);
+    //copy(edgeFinal, rectX, rectY, rectWidth, rectHeight, rectX, rectY, rectWidth, rectHeight);
     stroke(0);
     noFill();
     rect(rectX, rectY, rectWidth, rectHeight);
@@ -140,9 +143,8 @@ void updateRoberts() {
   for (int x = rectX; x < rectXEnd; x++) {
    for (int y = rectY; y < rectYEnd; y++) {
    int pix = x + y*img.width;
-   robertsValue = roberts(x, y, matrixH, matrixV, matrixsize, src);
-   src.pixels[pix] = color(robertsValue);
-   src.updatePixels();
+   robertsValue = roberts(x, y, matrixH, matrixV, matrixsize, destination);
+   edgeFinal.pixels[pix] = color(robertsValue);
    }
   }
 }
